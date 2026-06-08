@@ -26,7 +26,6 @@ const TopicPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [pyodide, setPyodide] = useState<any>(null);
   const [isPyodideLoading, setIsPyodideLoading] = useState(true);
-  const [showExplanation, setShowExplanation] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -40,7 +39,6 @@ const TopicPage: React.FC = () => {
       setCode(foundTopic.code);
       setOutput('');
       setError(null);
-      setShowExplanation(false);
       setCurrentQuizIndex(0);
       setSelectedAnswer(null);
       setShowQuizResult(false);
@@ -58,8 +56,8 @@ const TopicPage: React.FC = () => {
             const pyodideInstance = await window.loadPyodide({
               indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/'
             });
-            // 加载常用的包
-            await pyodideInstance.loadPackage(['numpy', 'matplotlib']);
+            // 预加载所有常用的包
+            await pyodideInstance.loadPackage(['numpy', 'matplotlib', 'pandas', 'scipy', 'scikit-learn']);
             setPyodide(pyodideInstance);
             setIsPyodideLoading(false);
           };
@@ -68,8 +66,8 @@ const TopicPage: React.FC = () => {
           const pyodideInstance = await window.loadPyodide({
             indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/'
           });
-          // 加载常用的包
-          await pyodideInstance.loadPackage(['numpy', 'matplotlib']);
+          // 预加载所有常用的包
+          await pyodideInstance.loadPackage(['numpy', 'matplotlib', 'pandas', 'scipy', 'scikit-learn']);
           setPyodide(pyodideInstance);
           setIsPyodideLoading(false);
         }
@@ -96,17 +94,6 @@ const TopicPage: React.FC = () => {
     setPlotImages([]);
 
     try {
-      // 首先，先加载需要的包
-      const packages: string[] = [];
-      if (code.includes('numpy') || code.includes('scipy') || code.includes('sklearn')) packages.push('numpy');
-      if (code.includes('matplotlib')) packages.push('matplotlib');
-      if (code.includes('pandas')) packages.push('pandas');
-      if (code.includes('scipy') || code.includes('sklearn')) packages.push('scipy');
-      if (code.includes('sklearn')) packages.push('scikit-learn');
-      if (packages.length > 0) {
-        await pyodide.loadPackage(packages);
-      }
-
       // 准备环境
       pyodide.runPython(`
         import sys
@@ -174,7 +161,6 @@ except Exception as e:
       setCode(topic.code);
       setOutput('');
       setError(null);
-      setShowExplanation(false);
     }
   };
 
@@ -183,7 +169,6 @@ except Exception as e:
     if (topic?.solution) {
       setCode(topic.solution);
     }
-    setShowExplanation(true);
   };
 
   const navigateTopic = (direction: number) => {
@@ -515,22 +500,7 @@ except Exception as e:
             </div>
           </div>
 
-          {/* Explanation Section */}
-          {showExplanation && (
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-              <div className="px-6 py-4 border-b border-slate-200 bg-gradient-to-r from-emerald-50 to-green-50">
-                <h2 className="text-lg font-semibold text-slate-800 flex items-center">
-                  <Lightbulb className="h-5 w-5 mr-2 text-emerald-600" />
-                  答案解析
-                </h2>
-              </div>
-              <div className="p-6">
-                <div className="prose prose-slate max-w-none">
-                  {renderMarkdown(topic.explanation || topic.businessCase)}
-                </div>
-              </div>
-            </div>
-          )}
+
 
           {/* Practice Exercises */}
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
