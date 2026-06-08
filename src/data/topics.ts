@@ -86,8 +86,8 @@ for c in customers:
 # 练习2：计算总消费额和平均消费金额
 total = sum(c['消费金额'] for c in customers)
 avg = total / len(customers)
-print(f"\\n总消费额: {total}元")
-print(f"平均消费金额: {avg:.2f}元")
+print(f"\\n总消费额: {{total}}元")
+print(f"平均消费金额: {{avg:.2f}}元")
 `,
     businessCase: `# 业务案例
 电商平台需要批量存储客户信息、统计每日销售额
