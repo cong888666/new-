@@ -164,6 +164,7 @@ except Exception as e:
 
   const resetCode = () => {
     if (topic) {
+      // 重置到初始练习题（code字段），而不是答案
       setCode(topic.code);
       setOutput('');
       setError(null);
@@ -172,6 +173,10 @@ except Exception as e:
   };
 
   const showAnswer = () => {
+    // 如果有solution字段，用solution覆盖当前代码
+    if (topic?.solution) {
+      setCode(topic.solution);
+    }
     setShowExplanation(true);
   };
 
