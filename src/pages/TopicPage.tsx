@@ -95,64 +95,63 @@ const TopicPage: React.FC = () => {
     setPlotImages([]);
 
     try {
-      let outputBuffer = '';
+      // 首先，先加载需要的包
+      if (code.includes('matplotlib') || code.includes('pandas') || code.includes('numpy') || code.includes('scipy')) {
+        await pyodide.loadPackage(['numpy', 'matplotlib', 'pandas']);
+      }
+
+      // 准备环境
       pyodide.runPython(`
         import sys
         from io import StringIO
         sys.stdout = StringIO()
       `);
 
-      // 首先，先加载需要的包
-      if (code.includes('matplotlib') || code.includes('pandas') || code.includes('numpy') || code.includes('scipy')) {
-        await pyodide.loadPackage(['numpy', 'matplotlib', 'pandas']);
-      }
-
-      // 在用户代码运行前设置 matplotlib 后端为 AGG
-      const wrappedCode = `
+      // 完整的代码，包括我们的绘图捕获逻辑
+      const fullCode = `
 import matplotlib.pyplot as plt
 plt.switch_backend('AGG')
+import base64
+from io import BytesIO
+
 ${code}
-      `;
 
-      await pyodide.runPythonAsync(wrappedCode);
-
-      const result = pyodide.runPython('sys.stdout.getvalue()');
-      outputBuffer = result;
-
-      // 尝试获取 matplotlib 生成的图表
-      try {
-        const imgData = await pyodide.runPythonAsync(`
+# 尝试捕获最后一个图表
 try:
-    import matplotlib.pyplot as plt
-    import base64
-    from io import BytesIO
-    
-    # 检查是否有活跃的图表
     fig = plt.gcf()
-    has_fig = len(fig.axes) > 0
-    if has_fig:
+    if len(fig.axes) > 0:
         buf = BytesIO()
         plt.savefig(buf, format='png', dpi=100, bbox_inches='tight')
         buf.seek(0)
         img_data = base64.b64encode(buf.read()).decode('utf-8')
         plt.close()
-        img_data
+        print("__PLOT_DATA__" + img_data)
     else:
-        None
-except Exception:
-    None
-      `);
-        
-        if (imgData) {
-          setPlotImages([`data:image/png;base64,${imgData}`]);
-        }
-      } catch (e) {
-        console.log('No plot to show', e);
-      }
+        plt.close()
+except Exception as e:
+    plt.close()
+`;
 
-      if (outputBuffer) {
-        setOutput(outputBuffer);
-      } else if (plotImages.length === 0 && !plotImages.length) {
+      await pyodide.runPythonAsync(fullCode);
+
+      const result = pyodide.runPython('sys.stdout.getvalue()');
+      
+      // 检查是否包含图表数据
+      if (result.includes('__PLOT_DATA__')) {
+        const parts = result.split('__PLOT_DATA__');
+        if (parts.length > 1) {
+          const imgData = parts[1].trim();
+          if (imgData) {
+            setPlotImages([`data:image/png;base64,${imgData}`]);
+          }
+          // 只保留输出文本部分（如果有的话）
+          if (parts[0].trim()) {
+            setOutput(parts[0].trim());
+          }
+        }
+      } else if (result) {
+        setOutput(result);
+      } else if (plotImages.length === 0) {
         setOutput('代码执行成功，但没有输出');
       }
     } catch (err: any) {

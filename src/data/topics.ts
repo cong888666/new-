@@ -200,21 +200,26 @@ print(df)
 - 散点图：展示相关性
 `,
     code: `import matplotlib.pyplot as plt
+import numpy as np
 
 # 柱状图 - 各品类月度销售额
 categories = ['Fushi', 'Meizhuang', 'Shipin', 'Jiadian']
 sales = [1200, 890, 1500, 600]
 
-plt.figure(figsize=(10, 6))
+# 创建图表
+plt.figure(figsize=(8, 5))
 plt.bar(categories, sales, color='#4472C4')
 plt.title('Monthly Sales by Category')
 plt.xlabel('Category')
 plt.ylabel('Sales')
-for i, v in enumerate(sales):
-    plt.text(i, v + 20, str(v), ha='center')
-plt.show()
 
-print("柱状图绘制完成！")
+# 添加数值标签
+for i, v in enumerate(sales):
+    plt.text(i, v + 30, str(v), ha='center')
+
+plt.tight_layout()
+
+print("图表已生成！")
 `,
     businessCase: `# 业务案例
 制作月度销售对比图，用于业务汇报和决策支持
