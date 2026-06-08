@@ -97,8 +97,14 @@ const TopicPage: React.FC = () => {
 
     try {
       // 首先，先加载需要的包
-      if (code.includes('matplotlib') || code.includes('pandas') || code.includes('numpy') || code.includes('scipy')) {
-        await pyodide.loadPackage(['numpy', 'matplotlib', 'pandas']);
+      const packages: string[] = [];
+      if (code.includes('numpy') || code.includes('scipy') || code.includes('sklearn')) packages.push('numpy');
+      if (code.includes('matplotlib')) packages.push('matplotlib');
+      if (code.includes('pandas')) packages.push('pandas');
+      if (code.includes('scipy') || code.includes('sklearn')) packages.push('scipy');
+      if (code.includes('sklearn')) packages.push('scikit-learn');
+      if (packages.length > 0) {
+        await pyodide.loadPackage(packages);
       }
 
       // 准备环境
@@ -520,7 +526,7 @@ except Exception as e:
               </div>
               <div className="p-6">
                 <div className="prose prose-slate max-w-none">
-                  {renderMarkdown(topic.businessCase)}
+                  {renderMarkdown(topic.explanation || topic.businessCase)}
                 </div>
               </div>
             </div>
