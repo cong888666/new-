@@ -57,6 +57,8 @@ const TopicPage: React.FC = () => {
             const pyodideInstance = await window.loadPyodide({
               indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/'
             });
+            // 加载常用的包
+            await pyodideInstance.loadPackage(['numpy', 'matplotlib']);
             setPyodide(pyodideInstance);
             setIsPyodideLoading(false);
           };
@@ -65,6 +67,8 @@ const TopicPage: React.FC = () => {
           const pyodideInstance = await window.loadPyodide({
             indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/'
           });
+          // 加载常用的包
+          await pyodideInstance.loadPackage(['numpy', 'matplotlib']);
           setPyodide(pyodideInstance);
           setIsPyodideLoading(false);
         }
@@ -77,6 +81,8 @@ const TopicPage: React.FC = () => {
     loadPyodide();
   }, []);
 
+  const [plotImages, setPlotImages] = useState<string[]>([]);
+  
   const runCode = useCallback(async () => {
     if (!pyodide) {
       setError('Python 环境正在加载中，请稍候...');
@@ -86,6 +92,7 @@ const TopicPage: React.FC = () => {
     setIsLoading(true);
     setError(null);
     setOutput('');
+    setPlotImages([]);
 
     try {
       let outputBuffer = '';
@@ -95,14 +102,57 @@ const TopicPage: React.FC = () => {
         sys.stdout = StringIO()
       `);
 
-      await pyodide.runPythonAsync(code);
+      // 首先，先加载需要的包
+      if (code.includes('matplotlib') || code.includes('pandas') || code.includes('numpy') || code.includes('scipy')) {
+        await pyodide.loadPackage(['numpy', 'matplotlib', 'pandas']);
+      }
+
+      // 在用户代码运行前设置 matplotlib 后端为 AGG
+      const wrappedCode = `
+import matplotlib.pyplot as plt
+plt.switch_backend('AGG')
+${code}
+      `;
+
+      await pyodide.runPythonAsync(wrappedCode);
 
       const result = pyodide.runPython('sys.stdout.getvalue()');
       outputBuffer = result;
 
+      // 尝试获取 matplotlib 生成的图表
+      try {
+        const imgData = await pyodide.runPythonAsync(`
+try:
+    import matplotlib.pyplot as plt
+    import base64
+    from io import BytesIO
+    
+    # 检查是否有活跃的图表
+    fig = plt.gcf()
+    has_fig = len(fig.axes) > 0
+    if has_fig:
+        buf = BytesIO()
+        plt.savefig(buf, format='png', dpi=100, bbox_inches='tight')
+        buf.seek(0)
+        img_data = base64.b64encode(buf.read()).decode('utf-8')
+        plt.close()
+        img_data
+    else:
+        None
+except Exception:
+    None
+      `);
+        
+        if (imgData) {
+          setPlotImages([`data:image/png;base64,${imgData}`]);
+        }
+      } catch (e) {
+        console.log('No plot to show', e);
+      }
+
       if (outputBuffer) {
         setOutput(outputBuffer);
-      } else {
+      } else if (plotImages.length === 0 && !plotImages.length) {
         setOutput('代码执行成功，但没有输出');
       }
     } catch (err: any) {
@@ -419,7 +469,7 @@ const TopicPage: React.FC = () => {
               </div>
 
               <CodeEditor code={code} onChange={setCode} />
-              <OutputPanel output={output} error={error} isLoading={isLoading} />
+              <OutputPanel output={output} error={error} isLoading={isLoading} plotImages={plotImages} />
             </div>
           </div>
 

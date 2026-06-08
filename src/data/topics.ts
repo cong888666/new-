@@ -201,44 +201,20 @@ print(df)
 `,
     code: `import matplotlib.pyplot as plt
 
-# 设置中文字体（可选）
-plt.rcParams['font.sans-serif'] = ['SimHei']
-plt.rcParams['axes.unicode_minus'] = False
-
-# 柱状图
-categories = ['服饰', '美妆', '食品', '家电']
+# 柱状图 - 各品类月度销售额
+categories = ['Fushi', 'Meizhuang', 'Shipin', 'Jiadian']
 sales = [1200, 890, 1500, 600]
 
 plt.figure(figsize=(10, 6))
 plt.bar(categories, sales, color='#4472C4')
-plt.title('各品类月度销售额')
-plt.xlabel('品类')
-plt.ylabel('销售额')
+plt.title('Monthly Sales by Category')
+plt.xlabel('Category')
+plt.ylabel('Sales')
 for i, v in enumerate(sales):
     plt.text(i, v + 20, str(v), ha='center')
 plt.show()
 
-# 折线图
-days = list(range(1, 8))
-day_sales = [300, 450, 380, 620, 510, 720, 680]
-
-plt.figure(figsize=(10, 6))
-plt.plot(days, day_sales, marker='o', linewidth=2, color='#ED7D31')
-plt.title('周销售额趋势')
-plt.xlabel('日期')
-plt.ylabel('销售额')
-plt.grid(True, linestyle='--', alpha=0.7)
-plt.show()
-
-# 饼图
-labels = ['高价值客户', '普通客户', '新客户', '流失客户']
-sizes = [35, 40, 15, 10]
-colors = ['#4472C4', '#ED7D31', '#A5A5A5', '#FFC000']
-
-plt.figure(figsize=(8, 8))
-plt.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%', startangle=90)
-plt.title('客户分层占比')
-plt.show()
+print("柱状图绘制完成！")
 `,
     businessCase: `# 业务案例
 制作月度销售对比图，用于业务汇报和决策支持
