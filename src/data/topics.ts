@@ -404,5 +404,531 @@ print(customer_data['客户标签'].value_counts())
         explanation: "不同指标的数值范围不同，标准化可以消除量纲影响，让各指标权重相当"
       }
     ]
+  },
+  {
+    id: 6,
+    title: "Excel数据分析",
+    description: "Pandas批量处理表格数据",
+    difficulty: "intermediate",
+    icon: "file-spreadsheet",
+    color: "from-green-500 to-green-600",
+    prerequisites: ["Python基础", "数据清洗"],
+    learningObjectives: [
+      "掌握Excel文件读写",
+      "学会数据筛选和排序",
+      "掌握数据透视表功能",
+      "学会多表关联和合并"
+    ],
+    theory: `# Excel数据分析
+## Pandas Excel操作
+- pd.read_excel() 读取
+- df.to_excel() 写入
+- 指定工作表
+## 数据处理
+- 筛选数据
+- 排序数据
+- 数据透视表
+## 多表关联
+- pd.concat() 拼接
+- pd.merge() 关联
+`,
+    code: `import pandas as pd
+
+# 模拟销售数据
+data = {
+    '月份': [1, 1, 1, 2, 2, 2, 3, 3, 3],
+    '品类': ['服饰', '美妆', '食品', '服饰', '美妆', '食品', '服饰', '美妆', '食品'],
+    '门店': ['A店', 'A店', 'A店', 'A店', 'A店', 'A店', 'A店', 'A店', 'A店'],
+    '销售额': [1200, 890, 1500, 1300, 950, 1600, 1400, 1000, 1700]
+}
+
+df = pd.DataFrame(data)
+print("原始销售数据:")
+print(df)
+
+# 数据筛选 - 只看服饰品类
+print("\\n服饰品类数据:")
+clothing_data = df[df['品类'] == '服饰']
+print(clothing_data)
+
+# 数据排序 - 按销售额降序
+print("\\n按销售额降序排序:")
+sorted_data = df.sort_values('销售额', ascending=False)
+print(sorted_data)
+
+# 数据透视表 - 按月份和品类统计
+print("\\n数据透视表 - 月度品类销售:")
+pivot_table = pd.pivot_table(
+    df,
+    values='销售额',
+    index='月份',
+    columns='品类',
+    aggfunc='sum'
+)
+print(pivot_table)
+
+# 统计汇总
+print("\\n总销售额:", df['销售额'].sum())
+print("平均单月销售额:", df['销售额'].mean())
+`,
+    businessCase: `# 业务案例
+电商月度销售数据分析，生成数据透视表用于汇报
+`,
+    exercises: [
+      "读取Excel文件并查看数据",
+      "按条件筛选数据",
+      "创建数据透视表",
+      "合并多个表格数据"
+    ],
+    quizzes: [
+      {
+        question: "Pandas读取Excel文件用什么方法？",
+        options: ["read_csv()", "read_excel()", "load_excel()", "open_excel()"],
+        answer: 1,
+        explanation: "pd.read_excel()用于读取Excel文件"
+      },
+      {
+        question: "创建数据透视表用什么方法？",
+        options: ["pivot()", "pivot_table()", "table()", "summary()"],
+        answer: 1,
+        explanation: "pd.pivot_table()用于创建数据透视表"
+      }
+    ]
+  },
+  {
+    id: 7,
+    title: "机器学习入门",
+    description: "回归与分类算法",
+    difficulty: "advanced",
+    icon: "brain",
+    color: "from-pink-500 to-pink-600",
+    prerequisites: ["统计分析", "Pandas"],
+    learningObjectives: [
+      "理解监督学习概念",
+      "掌握线性回归算法",
+      "掌握逻辑回归算法",
+      "学会模型评估方法"
+    ],
+    theory: `# 机器学习入门
+## 监督学习
+- 回归：预测连续值
+- 分类：预测类别
+## 核心概念
+- 特征（X）
+- 标签（y）
+- 训练集/测试集
+## 常用算法
+- 线性回归
+- 逻辑回归
+`,
+    code: `import numpy as np
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+# 模拟数据 - 广告投入 vs 销售额
+np.random.seed(42)
+ad_cost = np.linspace(10, 100, 50).reshape(-1, 1)
+sales = 50 + 15 * ad_cost.flatten() + np.random.normal(0, 30, 50)
+
+data = pd.DataFrame({
+    '广告投入': ad_cost.flatten(),
+    '销售额': sales
+})
+
+print("数据预览（前10条）:")
+print(data.head(10))
+
+# 划分训练集和测试集
+X = data[['广告投入']]
+y = data['销售额']
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+print("\\n训练集大小:", len(X_train))
+print("测试集大小:", len(X_test))
+
+# 训练线性回归模型
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+print("\\n模型参数:")
+print(f"截距: {model.intercept_:.2f}")
+print(f"系数: {model.coef_[0]:.2f}")
+
+# 预测
+y_pred = model.predict(X_test)
+
+print("\\n模型评估:")
+print(f"均方误差 (MSE): {mean_squared_error(y_test, y_pred):.2f}")
+print(f"R² 得分: {r2_score(y_test, y_pred):.4f}")
+
+# 预测新数据
+new_ad_cost = np.array([[80], [90], [100]])
+predictions = model.predict(new_ad_cost)
+print("\\n新数据预测:")
+for cost, pred in zip(new_ad_cost.flatten(), predictions):
+    print(f"广告投入 {cost} → 预测销售额 {pred:.2f}")
+`,
+    businessCase: `# 业务案例
+根据广告投入预测销售额，优化营销预算分配
+`,
+    exercises: [
+      "准备特征和标签数据",
+      "训练回归模型",
+      "评估模型性能",
+      "用模型预测新数据"
+    ],
+    quizzes: [
+      {
+        question: "预测连续数值用什么类型的算法？",
+        options: ["分类", "回归", "聚类", "降维"],
+        answer: 1,
+        explanation: "回归算法用于预测连续数值，如销售额、价格等"
+      },
+      {
+        question: "R² 得分越接近什么表示模型越好？",
+        options: ["-1", "0", "1", "100"],
+        answer: 2,
+        explanation: "R² 得分范围0-1，越接近1表示模型解释力越强"
+      }
+    ]
+  },
+  {
+    id: 8,
+    title: "时间序列分析",
+    description: "趋势与预测",
+    difficulty: "advanced",
+    icon: "clock",
+    color: "from-teal-500 to-teal-600",
+    prerequisites: ["Pandas", "数据可视化"],
+    learningObjectives: [
+      "认识时间序列数据",
+      "掌握日期处理方法",
+      "学会滑动窗口统计",
+      "掌握简单预测方法"
+    ],
+    theory: `# 时间序列分析
+## 时间序列特征
+- 趋势
+- 季节性
+- 周期性
+- 随机噪声
+## Pandas时间操作
+- 日期解析
+- 重采样
+- 滑动窗口
+## 预测方法
+- 移动平均
+- 指数平滑
+`,
+    code: `import pandas as pd
+import numpy as np
+
+# 创建时间序列数据
+dates = pd.date_range(start='2024-01-01', periods=60, freq='D')
+np.random.seed(42)
+
+# 模拟有趋势和季节性的销售数据
+trend = np.linspace(100, 500, 60)
+seasonality = 50 * np.sin(np.linspace(0, 8 * np.pi, 60))
+noise = np.random.normal(0, 30, 60)
+sales = trend + seasonality + noise
+
+data = pd.DataFrame({
+    '日期': dates,
+    '销售额': sales.round(2)
+})
+data.set_index('日期', inplace=True)
+
+print("时间序列数据（前10条）:")
+print(data.head(10))
+
+# 按月重采样
+print("\\n按月汇总销售额:")
+monthly_data = data.resample('M').sum()
+print(monthly_data)
+
+# 7日移动平均
+data['7日移动平均'] = data['销售额'].rolling(window=7).mean()
+print("\\n带移动平均的数据（最后10条）:")
+print(data.tail(10))
+
+# 简单预测 - 用最近7天平均值预测未来
+last_7_days_avg = data['销售额'].tail(7).mean()
+print(f"\\n最近7天平均销售额: {last_7_days_avg:.2f}")
+print(f"未来7天预测销售额（按平均值）: {(last_7_days_avg * 7):.2f}")
+
+# 计算增长趋势
+first_week_avg = data['销售额'].head(7).mean()
+last_week_avg = data['销售额'].tail(7).mean()
+growth_rate = (last_week_avg - first_week_avg) / first_week_avg * 100
+print(f"\\n期间增长率: {growth_rate:.2f}%")
+`,
+    businessCase: `# 业务案例
+分析销售趋势，预测未来销量，辅助库存决策
+`,
+    exercises: [
+      "创建时间序列数据",
+      "进行日期重采样",
+      "计算移动平均",
+      "做简单的趋势预测"
+    ],
+    quizzes: [
+      {
+        question: "将日数据转为月数据用什么操作？",
+        options: ["rolling()", "resample()", "shift()", "diff()"],
+        answer: 1,
+        explanation: "resample()用于时间序列的重采样，如日→月"
+      },
+      {
+        question: "滑动窗口统计用什么方法？",
+        options: ["window()", "rolling()", "slide()", "moving()"],
+        answer: 1,
+        explanation: "rolling()用于创建滑动窗口，可计算移动平均等"
+      }
+    ]
+  },
+  {
+    id: 9,
+    title: "A/B测试",
+    description: "产品与运营效果评估",
+    difficulty: "advanced",
+    icon: "git-branch",
+    color: "from-violet-500 to-violet-600",
+    prerequisites: ["统计分析"],
+    learningObjectives: [
+      "理解A/B测试概念",
+      "掌握实验设计原则",
+      "学会数据收集和清洗",
+      "掌握假设检验方法"
+    ],
+    theory: `# A/B测试
+## 什么是A/B测试
+- 对照组 vs 实验组
+- 单一变量原则
+- 统计显著性
+## 实验流程
+- 确定目标
+- 设计实验
+- 收集数据
+- 分析结果
+## 统计检验
+- t检验
+- 卡方检验
+`,
+    code: `import numpy as np
+import pandas as pd
+from scipy import stats
+
+# 模拟A/B测试数据 - 按钮颜色对转化率的影响
+np.random.seed(42)
+
+# 对照组 - 蓝色按钮
+n_control = 1000
+conversion_rate_control = 0.12
+conversions_control = np.random.binomial(1, conversion_rate_control, n_control)
+
+# 实验组 - 绿色按钮
+n_treatment = 1000
+conversion_rate_treatment = 0.15
+conversions_treatment = np.random.binomial(1, conversion_rate_treatment, n_treatment)
+
+# 创建DataFrame
+data = pd.DataFrame({
+    '组': ['对照组'] * n_control + ['实验组'] * n_treatment,
+    '是否转化': np.concatenate([conversions_control, conversions_treatment])
+})
+
+print("A/B测试数据预览:")
+print(data.sample(10))
+
+# 统计描述
+print("\\n各组转化率:")
+summary = data.groupby('组')['是否转化'].agg(['count', 'sum', 'mean'])
+summary.columns = ['访问人数', '转化人数', '转化率']
+print(summary)
+
+# 提取数据
+control_conv = data[data['组'] == '对照组']['是否转化']
+treatment_conv = data[data['组'] == '实验组']['是否转化']
+
+# 双样本t检验
+t_stat, p_value = stats.ttest_ind(treatment_conv, control_conv)
+
+print(f"\\n假设检验结果:")
+print(f"t统计量: {t_stat:.4f}")
+print(f"p值: {p_value:.6f}")
+
+# 判断结果
+alpha = 0.05
+if p_value < alpha:
+    print("\\n✅ 结论: 实验组效果显著优于对照组！")
+    improvement = (summary.loc['实验组', '转化率'] - summary.loc['对照组', '转化率']) / summary.loc['对照组', '转化率'] * 100
+    print(f"   相对提升: {improvement:.2f}%")
+else:
+    print("\\n❌ 结论: 两组效果无显著差异")
+
+# 计算置信区间
+def confidence_interval(data, confidence=0.95):
+    mean = np.mean(data)
+    se = stats.sem(data)
+    h = se * stats.t.ppf((1 + confidence) / 2, len(data) - 1)
+    return mean - h, mean + h
+
+ci_control = confidence_interval(control_conv)
+ci_treatment = confidence_interval(treatment_conv)
+
+print(f"\\n95% 置信区间:")
+print(f"对照组: [{ci_control[0]:.4f}, {ci_control[1]:.4f}]")
+print(f"实验组: [{ci_treatment[0]:.4f}, {ci_treatment[1]:.4f}]")
+`,
+    businessCase: `# 业务案例
+测试新按钮颜色，评估对用户转化率的影响
+`,
+    exercises: [
+      "设计A/B测试方案",
+      "收集和整理测试数据",
+      "进行统计显著性检验",
+      "解释测试结果"
+    ],
+    quizzes: [
+      {
+        question: "A/B测试中一次应该改变几个变量？",
+        options: ["1个", "2-3个", "尽可能多", "随便"],
+        answer: 0,
+        explanation: "A/B测试应遵循单一变量原则，一次只改变一个因素"
+      },
+      {
+        question: "p值小于0.05通常表示？",
+        options: ["实验失败", "差异统计显著", "数据有问题", "需要更多数据"],
+        answer: 1,
+        explanation: "p值小于0.05通常认为差异具有统计学显著性"
+      }
+    ]
+  },
+  {
+    id: 10,
+    title: "数据报告撰写",
+    description: "数据故事化呈现",
+    difficulty: "advanced",
+    icon: "file-text",
+    color: "from-amber-500 to-amber-600",
+    prerequisites: ["全部前置课程"],
+    learningObjectives: [
+      "掌握报告结构",
+      "学会数据解读",
+      "掌握图表搭配",
+      "学会撰写业务建议"
+    ],
+    theory: `# 数据报告撰写
+## 报告结构
+- 标题和摘要
+- 背景与目标
+- 数据说明
+- 分析过程
+- 结论建议
+## 核心要点
+- 结论先行
+- 图表配合
+- 逻辑清晰
+- 建议可落地
+`,
+    code: `# 数据报告撰写实战
+# 模拟完整分析流程并生成报告要点
+
+print("=" * 60)
+print("           电商销售数据分析报告")
+print("=" * 60)
+
+# 1. 摘要 - 结论先行
+print("\\n【1. 执行摘要】")
+print("  本报告分析了过去3个月的销售数据，主要发现:")
+print("  • 总销售额同比增长 23.5%")
+print("  • 美妆品类表现最佳，增长 41.2%")
+print("  • 建议增加美妆品类库存和营销投入")
+
+# 2. 背景与目标
+print("\\n【2. 分析背景与目标】")
+print("  • 背景: 2024年Q1销售复盘")
+print("  • 目标: 发现增长机会，指导Q2策略")
+print("  • 数据时间范围: 2024.01.01 - 2024.03.31")
+
+# 3. 数据概览
+print("\\n【3. 数据概览】")
+import pandas as pd
+import numpy as np
+
+np.random.seed(42)
+data = {
+    '月份': ['1月', '1月', '1月', '2月', '2月', '2月', '3月', '3月', '3月'],
+    '品类': ['服饰', '美妆', '食品', '服饰', '美妆', '食品', '服饰', '美妆', '食品'],
+    '销售额': [12000, 8900, 15000, 13500, 11000, 15500, 14200, 12500, 16000],
+    '订单量': [120, 95, 180, 135, 115, 185, 142, 130, 190]
+}
+df = pd.DataFrame(data)
+
+print("  数据预览:")
+print(df)
+
+# 4. 关键发现
+print("\\n【4. 关键发现】")
+
+# 按品类汇总
+category_summary = df.groupby('品类').agg({
+    '销售额': 'sum',
+    '订单量': 'sum'
+})
+category_summary['客单价'] = category_summary['销售额'] / category_summary['订单量']
+print("\\n  品类销售汇总:")
+print(category_summary.round(2))
+
+# 计算增长率
+print("\\n  增长分析:")
+jan_data = df[df['月份'] == '1月']['销售额'].sum()
+mar_data = df[df['月份'] == '3月']['销售额'].sum()
+growth = (mar_data - jan_data) / jan_data * 100
+print(f"  1月→3月增长率: {growth:.1f}%")
+
+# 5. 结论与建议
+print("\\n【5. 结论与建议】")
+print("  结论:")
+print("  1. 整体销售呈现稳步上升趋势")
+print("  2. 美妆品类增长势头最强")
+print("  3. 食品品类客单价最高")
+print("\\n  建议:")
+print("  1. 🎯 重点发展美妆品类，增加SKU")
+print("  2. 📦 食品品类可考虑捆绑销售提升订单量")
+print("  3. 📊 建立月度数据复盘机制")
+
+print("\\n" + "=" * 60)
+print("报告生成时间: 2024-04-01")
+print("=" * 60)
+`,
+    businessCase: `# 业务案例
+撰写季度销售分析报告，为管理层决策提供支持
+`,
+    exercises: [
+      "确定报告结构",
+      "组织和分析数据",
+      "撰写业务洞察",
+      "提出可落地建议"
+    ],
+    quizzes: [
+      {
+        question: "数据报告中通常把什么放在最前面？",
+        options: ["详细数据", "结论摘要", "分析过程", "方法论"],
+        answer: 1,
+        explanation: "报告应结论先行，让读者快速了解核心发现"
+      },
+      {
+        question: "好的业务建议应该具备什么特点？",
+        options: ["尽量笼统", "具体可落地", "越长越好", "充满专业术语"],
+        answer: 1,
+        explanation: "好的建议应该具体、可落地、有明确的执行方向"
+      }
+    ]
   }
 ];

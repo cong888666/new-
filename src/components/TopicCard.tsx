@@ -2,8 +2,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  Code, Database, BarChart3, Calculator, Table, Brain, 
-  TrendingUp, Users, Activity, FileText 
+  Code, Sparkles, BarChart3, TrendingUp, Users, 
+  FileSpreadsheet, Brain, Clock, GitBranch, FileText 
 } from 'lucide-react';
 import { Topic } from '../data/topics';
 
@@ -13,14 +13,15 @@ interface TopicCardProps {
 
 const iconMap: Record<string, React.ReactNode> = {
   'code': <Code className="h-6 w-6" />,
-  'database': <Database className="h-6 w-6" />,
-  'bar-chart': <BarChart3 className="h-6 w-6" />,
-  'calculator': <Calculator className="h-6 w-6" />,
-  'table': <Table className="h-6 w-6" />,
-  'brain': <Brain className="h-6 w-6" />,
+  'sparkles': <Sparkles className="h-6 w-6" />,
+  'bar-chart-2': <BarChart3 className="h-6 w-6" />,
+  'bar-chart-3': <BarChart3 className="h-6 w-6" />,
   'trending-up': <TrendingUp className="h-6 w-6" />,
   'users': <Users className="h-6 w-6" />,
-  'activity': <Activity className="h-6 w-6" />,
+  'file-spreadsheet': <FileSpreadsheet className="h-6 w-6" />,
+  'brain': <Brain className="h-6 w-6" />,
+  'clock': <Clock className="h-6 w-6" />,
+  'git-branch': <GitBranch className="h-6 w-6" />,
   'file-text': <FileText className="h-6 w-6" />,
 };
 

@@ -3,7 +3,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   Play, RotateCcw, ArrowLeft, ChevronLeft, ChevronRight, 
   BookOpen, Lightbulb, Target, List, CheckCircle, HelpCircle,
-  Menu, X, GraduationCap, FileText, Code
+  Menu, X, GraduationCap, FileText, Code, BarChart3, TrendingUp,
+  Users, FileSpreadsheet, Brain, Clock, GitBranch, Sparkles
 } from 'lucide-react';
 import { topics, Topic, Quiz } from '../data/topics';
 import CodeEditor from '../components/CodeEditor';
@@ -242,6 +243,35 @@ except Exception as e:
     });
   };
 
+  // 图标映射
+  const getIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'code':
+        return <Code />;
+      case 'sparkles':
+        return <Sparkles />;
+      case 'bar-chart-2':
+      case 'bar-chart-3':
+        return <BarChart3 />;
+      case 'trending-up':
+        return <TrendingUp />;
+      case 'users':
+        return <Users />;
+      case 'file-spreadsheet':
+        return <FileSpreadsheet />;
+      case 'brain':
+        return <Brain />;
+      case 'clock':
+        return <Clock />;
+      case 'git-branch':
+        return <GitBranch />;
+      case 'file-text':
+        return <FileText />;
+      default:
+        return <BookOpen />;
+    }
+  };
+
   if (!topic) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -353,7 +383,9 @@ except Exception as e:
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:ml-64">
           <div className="flex items-start space-x-4">
             <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-              <BookOpen className="h-8 w-8" />
+              <div className="h-8 w-8">
+                {getIcon(topic.icon)}
+              </div>
             </div>
             <div className="flex-1">
               <h1 className="text-2xl sm:text-3xl font-bold mb-2">{topic.title}</h1>
